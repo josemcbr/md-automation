@@ -1,0 +1,13 @@
+# Python
+venv
+.vscode
+*pycache*
+
+# Test
+linajes/*
+test*
+cfg/auxiliary.py
+
+# Outputs
+outputs
+inputs
