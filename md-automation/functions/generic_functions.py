@@ -6,11 +6,9 @@ import numpy as np
 import shutil
 from logger import logger
 from config import config
-from tabulate import tabulate
-from contextlib import redirect_stdout
 
-_LINEAGE_FOLDER = config['folders']['lineaje_folder']
-_LINEAGE_FIELDS = config['folders']['parameter_file_folder']
+_LINEAGE_FOLDER = config['Folders']['lineaje_folder']
+_LINEAGE_FIELDS = config['Folders']['parameter_file_folder']
 
 # Validation parameters function
 def validate_parameters():
@@ -33,23 +31,24 @@ def create_folder_structure(legacy: str):
         Parameters:
             legacy (str): Name of the legacy for which the folder structure will be created.
     '''
+
     logger.info(f"Creating folder structure for {legacy}")
 
     # Parent folder
-    create_folder(config.get('folders', 'output_folder'))
+    create_folder('outputs')
 
     # Function folders
-    create_folder(config.get('folders', 'dmstask_output_folder'))
-    create_folder(config.get('folders', 'government_output_folder'))
-    create_folder(config.get('folders', 'dataquality_output_folder'))
+    create_folder(config['Folders']['dmstask_output_folder'])
+    create_folder(config['Folders']['government_output_folder'])
+    create_folder(config['Folders']['parametries_output_folder'])
 
     # Legacy folders
-    delete_folder(f"{config.get('folders', 'dmstask_output_folder')}/{legacy}")
-    create_folder(f"{config.get('folders', 'dmstask_output_folder')}/{legacy}")
-    delete_folder(f"{config.get('folders', 'government_output_folder')}/{legacy}")
-    create_folder(f"{config.get('folders', 'government_output_folder')}/{legacy}")
-    delete_folder(f"{config.get('folders', 'dataquality_output_folder')}/{legacy}")
-    create_folder(f"{config.get('folders', 'dataquality_output_folder')}/{legacy}")
+    delete_folder(f"{config['Folders']['dmstask_output_folder']}/{legacy}")
+    create_folder(f"{config['Folders']['dmstask_output_folder']}/{legacy}")
+    delete_folder(f"{config['Folders']['government_output_folder']}/{legacy}")
+    create_folder(f"{config['Folders']['government_output_folder']}/{legacy}")
+    delete_folder(f"{config['Folders']['parametries_output_folder']}/{legacy}")
+    create_folder(f"{config['Folders']['parametries_output_folder']}/{legacy}")
 
     logger.info(f"Folder structure created for {legacy}")
 
@@ -98,9 +97,8 @@ def get_config(schema: str):
             pd.DataFrame: Dataframe with all fields for the schema
     '''
     config_df = pd.read_csv(_LINEAGE_FIELDS, sep=';', dtype=str, header=0)
-    config_df['primary_key'] = config_df['primary_key'].fillna('N')
-    config_df['field_length'] = config_df['field_length'].fillna(0)
     config_df.ffill(inplace=True)
+
     config_df = config_df[config_df['schema'] == schema]
     config_df.reset_index(drop=True, inplace=True)
     config_df = config_df.map(lambda x: x.upper() if isinstance(x, str) else x)
@@ -241,12 +239,12 @@ def _parse_lineage_and_extract_information(file_path: str, schema: str):
     legacy_info_df = _get_subset_df(src_df, lookup_column_name.get(schema))
     landing_info_df = _get_subset_df(src_df, 'LANDING')
     staging_info_df = _get_subset_df(src_df, 'STAGING')
-    values_df = _get_subset_df(src_df, 'Valores Formateados')
 
     # Transform dataframe
-    all_info_df = pd.concat([legacy_info_df, values_df, landing_info_df, staging_info_df], axis=1)
+    all_info_df = pd.concat([legacy_info_df, landing_info_df, staging_info_df], axis=1)
     all_info_df.iloc[:, 0] = all_info_df.iloc[:, 0].ffill()
-    all_info_df = all_info_df[all_info_df.iloc[:, 1].notna()].fillna('N/A').reset_index(drop=True)
+    all_info_df = all_info_df[all_info_df.iloc[:, 1].notna()].fillna('NO').reset_index(drop=True)
+
     columns_to_modify = ['LEGACY_OBLIGATORIO', 'LANDING_OBLIGATORIO', 'STAGING_OBLIGATORIO']
     all_info_df[columns_to_modify] = all_info_df[columns_to_modify].apply(
         lambda col: col.apply(lambda x: True if 'S' in str(x).upper() else False)
@@ -254,7 +252,6 @@ def _parse_lineage_and_extract_information(file_path: str, schema: str):
 
     logger.debug("Returned dataframe with excel information.")
     return all_info_df
-
 
 def _get_subset_df(src_df: pd.DataFrame, columns_to_search: str):
     '''
@@ -270,18 +267,14 @@ def _get_subset_df(src_df: pd.DataFrame, columns_to_search: str):
     lookup_columns = src_df.columns[src_df.columns.get_level_values(0) == columns_to_search]
     if not lookup_columns.empty:
         first_column_index = src_df.columns.get_loc(lookup_columns[0])
-        last_column_index = first_column_index + len(lookup_columns) # eliminamos la columna de valores
+        last_column_index = first_column_index + len(lookup_columns) -1 # eliminamos la columna de valores
     else:
         return pd.DataFrame()
     
     subset_df = src_df.iloc[:, first_column_index:last_column_index]
     if columns_to_search in ('LANDING', 'STAGING'):
         subset_df.columns = [f"{columns_to_search.upper()}_{col.upper().replace(' ', '_')}" for col in subset_df.columns.get_level_values(1)]
-        subset_df = subset_df.iloc[:, :-1]
-    elif columns_to_search.upper() == 'VALORES FORMATEADOS':
-        subset_df.columns = [f"{col.upper().replace(' ', '_')}" for col in subset_df.columns.get_level_values(0)]
     else:
         subset_df.columns = [f"LEGACY_{col.upper().replace(' ', '_')}" for col in subset_df.columns.get_level_values(1)]
-        subset_df = subset_df.iloc[:, :-1]
 
     return subset_df

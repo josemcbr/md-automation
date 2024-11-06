@@ -2,10 +2,8 @@ import os
 import copy
 import pandas as pd
 from logger import logger
-from config import config
 from functions.dmstasks_functions import generate_dmstask
 from functions.government_tables_functions import generate_government_tables
-from functions.dataquality_functions import generate_dataquality
 from functions.generic_functions import (
     validate_parameters,
     create_folder_structure,
@@ -28,8 +26,6 @@ def main():
             process_schema(schema, args, lineage_excel_path)
     except Exception as err:
         logger.error(f'Error: {err}')
-    
-    logger.info('Process finished.')
 
 
 def process_schema(schema, args, lineage_excel_path):
@@ -55,24 +51,15 @@ def process_schema(schema, args, lineage_excel_path):
         return
 
     # Dmstask files
-    if config.getboolean('dmstask', 'active', fallback=False):
-        logger.info(f'Generating dmstask files for {args.legado} in {schema}')
-        generate_dmstask(copy.deepcopy(lineage_df).iloc[:, 0:4], config_df, args.legado, schema)
+    logger.info(f'Generating dmstask files for {args.legado} in {schema}')
+    generate_dmstask(copy.deepcopy(lineage_df).iloc[:, 0:4], config_df, args.legado, schema)
 
     # Generate government tables files
-    if config.getboolean('government', 'active', fallback=False):
-        logger.info(f'Generating government tables files for {args.legado} in {schema}')
-        govement_df = copy.deepcopy(lineage_df)
-        govement_df = pd.concat([govement_df.iloc[:, 0], govement_df.iloc[:, 5:]], axis=1)
-        generate_government_tables(govement_df, config_df, args.legado)  
+    logger.info(f'Generating government tables files for {args.legado} in {schema}')
+    govement_df = copy.deepcopy(lineage_df)
+    govement_df = pd.concat([govement_df.iloc[:, 0], govement_df.iloc[:, 4:]], axis=1)
+    generate_government_tables(govement_df, config_df, args.legado)  
     
-    # DataQuality files
-    if config.getboolean('dataquality', 'active', fallback=False):
-        logger.info(f'Generating DataQuality files for {args.legado} in {schema}')
-        dataquality_df = copy.deepcopy(lineage_df)
-        dataquality_df = pd.concat([dataquality_df.iloc[:, 0:2], dataquality_df.iloc[:, 4]], axis=1)
-        generate_dataquality(dataquality_df, config_df, args.legado, schema)
-
 
 if __name__ == '__main__':
     main()
