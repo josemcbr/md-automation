@@ -3,7 +3,7 @@ import numpy as np
 from config import config
 from logger import logger
 
-_OUTPUT_FOLDER = config['Folders']['government_output_folder']
+_OUTPUT_FOLDER = config['folders']['government_output_folder']
 _GOV_COLUMNS = [ 
     "owner", "table_name", "column_namedata_type", "column_namedata_type_aurora", "check_type", "type_create_lnd",
     "type_create", "char_length", "data_precisiondata_scale", "nullable", "format_data", "is_landing"
@@ -25,50 +25,49 @@ def generate_government_tables(df: pd.DataFrame, config_df: pd.DataFrame, legacy
     config_df['LEGACY_VIEW'] = config_df['LEGACY_VIEW'].str.replace('LEGADO', legacy.upper())
     
     # Merge the configuration DataFrame with the main DataFrame
-    logger.info('Merging configuration and main dataframes')
+    logger.debug('Merging configuration and main dataframes')
     join_df = pd.merge(config_df, df, left_on=['LEGACY_VIEW', 'FIELD_NAME'],
                        right_on=['LEGACY_NOMBRE_VISTA','LANDING_NOMBRE_CAMPO'], how='left')
     
-    logger.info('Processing legacy tables, one by one.')
+    logger.debug('Processing legacy tables, one by one.')
     legacy_tables = config_df['LEGACY_VIEW'].unique().tolist()
     for legacy_table in legacy_tables:
         _process_legacy_table(join_df, legacy_table, legacy)
 
 
-def _process_legacy_table(join_df: pd.DataFrame, legacy_table: str, legacy: str):
+def _process_legacy_table(df: pd.DataFrame, legacy_table: str, legacy: str):
     """
     Process and generate government table for a specific legacy table.
 
     Parameters:
-        join_df (pd.DataFrame): The merged DataFrame from configuration and main data.
+        df (pd.DataFrame): The merged DataFrame from configuration and main data.
         legacy_table (str): The name of the legacy table being processed.
         legacy (str): The legacy system identifier.
     """
-    logger.debug(f'Getting information for {legacy_table}')
-    join_df_filtered = join_df[join_df['LEGACY_VIEW'] == legacy_table].reset_index(drop=True)
-
-    gov_df = pd.DataFrame(columns=_GOV_COLUMNS)
+    logger.debug(f'Generating government table for {legacy_table.replace('LEGADO', legacy)}')
+    df_filtered = df[df['LEGACY_VIEW'] == legacy_table].reset_index(drop=True)
 
     # Creating the government DataFrame columns
-    gov_df['table_name'] = join_df_filtered['TARGET_TABLE']
+    gov_df = pd.DataFrame(columns=_GOV_COLUMNS)
+    gov_df['table_name'] = df_filtered['TARGET_TABLE']
     gov_df['owner'] = f'DBA_{legacy.upper()}'
-    gov_df['column_namedata_type'] = join_df_filtered['LANDING_NOMBRE_CAMPO'].fillna(join_df_filtered['FIELD_NAME'])
-    gov_df['column_namedata_type_aurora'] = join_df_filtered['STAGING_CAMPO'].fillna(join_df_filtered['FIELD_NAME'])
-    gov_df['check_type'] = join_df_filtered['CHECK_FIELD_TYPE']
+    gov_df['column_namedata_type'] = df_filtered['LANDING_NOMBRE_CAMPO'].fillna(df_filtered['FIELD_NAME'])
+    gov_df['column_namedata_type_aurora'] = df_filtered['STAGING_CAMPO'].fillna(df_filtered['FIELD_NAME'])
+    gov_df['check_type'] = df_filtered['CHECK_FIELD_TYPE']
     gov_df['is_landing'] = "True"
     
-    logger.debug('Extract valueds for goverment table fields.')
     # Populate the government DataFrame with processed row data
-    for index, row in join_df_filtered.iterrows():
+    for index, row in df_filtered.iterrows():
         _populate_gov_dataframe(gov_df, index, row)
 
     # Save the government DataFrame to CSV
-    target_table = join_df_filtered['TARGET_TABLE'].unique()[0]
-    gov_df.to_csv(f'{_OUTPUT_FOLDER}/{legacy}/{target_table.lower()}.csv', index=False, sep=';')
+    target_table = df_filtered['TARGET_TABLE'].unique()[0]
+    gov_df_no_error = _add_records_no_error(gov_df, legacy, target_table)
+    gov_df_no_error.to_csv(f'{_OUTPUT_FOLDER}/{legacy}/{target_table.lower()}.csv', index=False, sep=';')
     
     # Process staging records and save error CSV
     gov_df['is_stg'] = 'True'
-    gov_df = _add_records(gov_df, legacy, target_table)
+    gov_df = _add_records_error(gov_df, legacy, target_table)
     gov_df.to_csv(f'{_OUTPUT_FOLDER}/{legacy}/{target_table.lower()}_error.csv', index=False, sep=';')
 
 
@@ -160,9 +159,9 @@ def _extract_length(type_string: str):
     return np.nan
 
 
-def _add_records(df: pd.DataFrame, legacy: str, table: str):
+def _add_records_no_error(df: pd.DataFrame, legacy: str, table: str):
     """
-        Add necessary records to the government DataFrame.
+        Add necessary records to the government no error DataFrame.
 
         Parameters:
             gov_df (DataFrame): The government DataFrame to be modified.
@@ -172,26 +171,57 @@ def _add_records(df: pd.DataFrame, legacy: str, table: str):
         Returns:
             pd.DataFrame: Updated DataFrame after adding records.
     """
-    logger.info('Adding records to government table')
-    # Creating a record for the timestamp with specified attributes
-    timestamp_record = {
-        'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'TIMESTAMP_CARGA', 'column_namedata_type_aurora': 'TIMESTAMP_CARGA',
-        'check_type': 'DATE', 'type_create': 'string', 'type_create_lnd': 'string', 'char_length': np.nan, 'data_precisiondata_scale': np.nan, 
-        'nullable': 'Y', 'is_landing': 'True', 'is_stg': 'True'
-    }
-
     # Creating a record for key cross-reference in MDM
     it_cruza_mdm = {
-        'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'FK_CRUZA_MDM', 'column_namedata_type_aurora': 'FK_CRUZA_MDM',
+        'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'IT_CRUZA_MDM', 'column_namedata_type_aurora': 'FK_CRUZA_MDM',
         'check_type': 'VARCHAR2', 'type_create': 'string', 'type_create_lnd': 'string', 'char_length': np.nan, 'data_precisiondata_scale': np.nan,
-        'nullable':'Y', 'is_landing':'True', 'is_stg':'False'
+        'nullable':'Y', 'is_landing':'True'
     }
 
     # Creating a record for foreign key incompleteness
     cd_fk_incumple = {
         'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'CD_FK_INCUMPLE', 'column_namedata_type_aurora': 'CD_FK_INCUMPLE',
         'check_type': 'VARCHAR2', 'type_create': 'string', 'type_create_lnd': 'string', 'char_length': np.nan, 'data_precisiondata_scale': np.nan,
-        'nullable':'Y', 'is_landing':'True', 'is_stg':'False'
+        'nullable':'Y', 'is_landing':'True'
+    }
+
+    # Creating a record for unique id
+    id_unico = {
+        'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'ID_UNICO', 'column_namedata_type_aurora': 'ID_UNICO',
+        'check_type': 'NUMBER', 'type_create': 'int', 'type_create_lnd': 'int', 'char_length': np.nan, 'data_precisiondata_scale': np.nan,
+        'nullable':'Y', 'is_landing':'True'
+    }
+
+    # Creating a record for unique id order
+    id_unico_orden = {
+        'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'ID_UNICO_ORDEN', 'column_namedata_type_aurora': 'ID_UNICO_ORDEN',
+        'check_type': 'NUMBER', 'type_create': 'int', 'type_create_lnd': 'int', 'char_length': np.nan, 'data_precisiondata_scale': np.nan,
+        'nullable':'Y', 'is_landing':'True'
+    }
+
+    new_records = [it_cruza_mdm, cd_fk_incumple, id_unico, id_unico_orden]
+    new_df = pd.DataFrame(new_records)
+    df = pd.concat([df, new_df], ignore_index=True)
+
+    return df
+
+def _add_records_error(df: pd.DataFrame, legacy: str, table: str):
+    """
+        Add necessary records to the government error DataFrame.
+
+        Parameters:
+            gov_df (DataFrame): The government DataFrame to be modified.
+            legacy (str): The legacy system identifier.
+            target_table (str): The name of the target table.
+
+        Returns:
+            pd.DataFrame: Updated DataFrame after adding records.
+    """
+    # Creating a record for the timestamp with specified attributes
+    timestamp_record = {
+        'owner': f'DBA_{legacy.upper()}', 'table_name': table, 'column_namedata_type': 'TIMESTAMP_CARGA', 'column_namedata_type_aurora': 'TIMESTAMP_CARGA',
+        'check_type': 'DATE', 'type_create': 'string', 'type_create_lnd': 'string', 'char_length': np.nan, 'data_precisiondata_scale': np.nan, 
+        'nullable': 'Y', 'is_landing': 'True', 'is_stg': 'True'
     }
 
     # Creating a record for error
@@ -209,7 +239,7 @@ def _add_records(df: pd.DataFrame, legacy: str, table: str):
     }
     
     # Collecting all individual records into a list and add to df
-    new_records = [timestamp_record, it_cruza_mdm, cd_fk_incumple, registro_error, dataquality_rule]
+    new_records = [timestamp_record, registro_error, dataquality_rule]
     new_df = pd.DataFrame(new_records)
     df = pd.concat([df, new_df], ignore_index=True)
 

@@ -4,8 +4,7 @@ import copy
 from logger import logger
 from config import config
 
-
-_OUTPUT_FOLDER = config['Folders']['dmstask_output_folder']
+_OUTPUT_FOLDER = config['folders']['dmstask_output_folder']
 _GENERIC_RULE = {
     "rule-type": "transformation",
     "rule-id": "value",
@@ -28,7 +27,6 @@ _GENERIC_RULE = {
     }
 }
 
-
 def generate_dmstask(df: pd.DataFrame, config_df: pd.DataFrame, legacy: str, schema: str):
     '''
         Function to generate and save dmstask json file for table.
@@ -41,17 +39,16 @@ def generate_dmstask(df: pd.DataFrame, config_df: pd.DataFrame, legacy: str, sch
     # Recorrer el dataframe config y compararlo con el df del linaje
     legacy_tables = config_df['LEGACY_VIEW'].unique().tolist()
     for legacy_table in legacy_tables:
-        logger.debug(f'Checking {legacy_table}')
-
         config_df_filtered = config_df[config_df['LEGACY_VIEW'] == legacy_table].reset_index(drop=True)
         df_filtered = df[df['LEGACY_NOMBRE_VISTA'] == legacy_table.replace('LEGADO',legacy.upper())].reset_index(drop=True)
 
         target_table = config_df_filtered['TARGET_TABLE'].unique()[0]
 
         config_df_filtered['PRESENT_IN_LINEAGE'] = config_df_filtered['FIELD_NAME'].isin(df_filtered['LEGACY_NOMBRE_CAMPO'])
+        config_df_filtered.sort_values(by='PRESENT_IN_LINEAGE', ascending=False, inplace=True)
     
         rules = _generate_file(config_df_filtered)
-
+        
         with open(f'{_OUTPUT_FOLDER}/{legacy.lower()}/{target_table.lower()}_{legacy.lower()}.json', 'w') as fp:
             json.dump(rules, fp, indent=4)
 
@@ -64,7 +61,7 @@ def _generate_file(df: pd.DataFrame):
         Returns:
             list: List of rules for dmstask
     '''
-    logger.info(f'Generating dmstask for {df["LEGACY_VIEW"].unique()[0]}')
+    logger.debug(f'Generating dmstask for {df["TARGET_TABLE"].unique()[0]}')
     # Defines
     rule_list = []
 

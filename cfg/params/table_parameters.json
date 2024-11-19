@@ -1,0 +1,244 @@
+{
+    "hsta_apuntes": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "CD_PERSONA_USUARIA",
+        "orden_carga": 30
+    },
+    "hsta_detalles_apuntes": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "CD_PERSONA_USUARIA",
+        "orden_carga": 40
+    },
+    "hsta_detalles_episodios": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "CD_PERSONA_USUARIA",
+        "orden_carga": 20,
+        "mdm_table": "CUDC_MODD_MDM_STG_EXT_HSU",
+        "mdm_table_tiposdatos": {
+            "CD_PERSONA_USUARIA": "String",
+            "CD_SRC": "String",
+            "NM_GRADO_DISCAPACIDAD": "Decimal(5,2)",
+            "CD_TIPO_DISCAPACIDAD": "String",
+            "CD_GRADO_DEPENDENCIA": "String",
+            "CD_NIVEL_DEPENDENCIA": "Integer",
+            "IT_FAMILIA_NUMEROSA": "Integer",
+            "IT_TUTELA_ADULTO": "Integer",
+            "IT_PENSION_NO_CONTRIBUTIVA": "Integer",
+            "IT_RENTA_MINIMA_INSERCION": "Integer"
+        },
+        "tablas_join_mdm": [
+            "hsta_detalles_episodios"
+        ]
+    },
+    "hsta_episodios": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "CD_PERSONA_USUARIA",
+        "orden_carga": 10
+    },
+    "hsta_correos_electronicos": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "ID_PERSONA_USUARIA",
+        "orden_carga": 20
+    },
+    "hsta_direcciones": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "ID_PERSONA_USUARIA",
+        "orden_carga": 40,
+        "mdm_table": "CUDC_MODD_MDM_STG_DIRECCION",
+        "mdm_table_tiposdatos": {
+            "ID_PERSONA_USUARIA": "String",
+            "CD_EXPEDIENTE": "String",
+            "CD_SRC": "String",
+            "CD_TIPO_DOMICILIO": "String",
+            "CD_TIPO_VIA": "String",
+            "DS_NOMBRE_VIA": "String",
+            "DS_NUMERO": "String",
+            "NM_KM": "Float",
+            "DS_BLOQUE": "String",
+            "DS_ESCALERA": "String",
+            "DS_PISO": "String",
+            "DS_PUERTA": "String",
+            "CD_PROVINCIA": "String",
+            "CD_MUNICIPIO": "String",
+            "CD_COD_POSTAL": "String",
+            "ID_DIRECCION_SRC": "String",
+            "TL_DIRECCION_COMPLETA": "String",
+            "DS_PORTAL": "String",
+            "DS_LOCALIDAD": "String",
+            "CD_CCAA": "String",
+            "CD_PAIS": "String",
+            "NM_LATITUD": "Double",
+            "NM_LONGITUD": "Double",
+            "TL_INFO_ADICIONAL": "String",
+            "DS_SISTEMA_COORDENADAS": "String",
+            "NM_CATASTRAL": "String"
+        },
+        "tablas_join_mdm": [
+            "hsta_direcciones"
+        ],
+        "order_fields": [
+            "ID_DIRECCION_SRC",
+            "ID_CIUDADANO_SRC",
+            "CD_SRC",
+            "TL_DIRECCION_COMPLETA",
+            "CD_TIPO_DIRECCION",
+            "CD_TIPO_VIA",
+            "DS_NOMBRE_VIA",
+            "DS_NUMERO_DIRECCION",
+            "NM_KILOMETRO",
+            "DS_BLOQUE",
+            "DS_PORTAL",
+            "DS_ESCALERA",
+            "DS_PLANTA",
+            "DS_PUERTA",
+            "CD_PROVINCIA",
+            "CD_MUNICIPIO",
+            "DS_LOCALIDAD",
+            "CD_CCAA",
+            "CD_PAIS",
+            "CD_CODIGO_POSTAL",
+            "NM_LATITUD",
+            "NM_LONGITUD",
+            "TL_INFO_ADICIONAL",
+            "DS_SISTEMA_COORDENADAS",
+            "NM_CATASTRAL",
+            "FC_MODIF_DATA",
+            "CD_USU_ALTA",
+            "CD_USU_MODIF",
+            "FC_BAJA_FILA",
+            "CD_USU_BAJA"
+        ]
+    },
+    "hsta_identificaciones": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "orden_carga": 60,
+        "mdm_table": "CUDC_MODD_MDM_STG_DOC_IDENT",
+        "mdm_table_tiposdatos": {
+            "ID_PERSONA_USUARIA": "String",
+            "CD_SRC": "String",
+            "ID_DOC_IDENT_SRC": "String",
+            "CD_PAIS_DOCUMENTO": "String",
+            "CD_TIPO_DOCUMENTO": "String",
+            "DS_NUMERO_IDENTIFICACION": "String"
+        },
+        "tablas_join_mdm": [
+            "hsta_identificaciones"
+        ]
+    },
+    "hsta_nacionalidades": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "orden_carga": 70,
+        "mdm_table": "CUDC_MODD_MDM_STG_NACIONALIDAD",
+        "mdm_table_tiposdatos": {
+            "ID_PERSONA_USUARIA": "String",
+            "CD_SRC": "String",
+            "ID_NACIONALIDAD_SRC": "String",
+            "CD_NACIONALIDAD": "String"
+        },
+        "tablas_join_mdm": [
+            "hsta_nacionalidades"
+        ]
+    },
+    "hsta_personas_usuarias": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "ID_PERSONA_USUARIA",
+        "mdm_table": "CUDC_MODD_MDM_STG_CIUDADANO",
+        "mdm_table_tiposdatos": {
+            "ID_PERSONA_USUARIA": "String",
+            "CD_SRC": "String",
+            "CD_TP_PERSONA": "String",
+            "DS_NUMERO": "String",
+            "DS_PREFIJO_TELEFONO": "String",
+            "DS_DIRECCION": "String",
+            "DS_NOMBRE": "String",
+            "DS_APELLIDO_1": "String",
+            "DS_APELLIDO_2": "String",
+            "CD_SEXO": "String",
+            "FC_NACIMIENTO": "Date",
+            "CD_PAIS_NACIMIENTO": "String",
+            "FC_FALLECIMIENTO": "Date",
+            "IT_EMPLEADO_PUBLICO": "Integer",
+            "CD_ESTADO_CIVIL": "String"
+        },
+        "tablas_join_mdm": [
+            "hsta_personas_usuarias",
+            "hsta_correos_electronicos",
+            "hsta_telefonos"
+        ]
+    },
+    "hsta_representaciones": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "ID_PERSONA_USU_REPRESENTADA",
+        "orden_carga": 50
+    },
+    "hsta_telefonos": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "ID_PERSONA_USUARIA",
+        "orden_carga": 30
+    },
+    "hsta_unidades_familiares": {
+        "diccionario_validacion_accurracy": {
+            "OPERACION": [
+                "CASE WHEN ((FC_ULTIMA_ACT IS NULL OR FC_ALTA = FC_ULTIMA_ACT) AND FC_BAJA IS NULL) THEN '1ALTA' WHEN (FC_BAJA IS NULL AND FC_ULTIMA_ACT IS NOT NULL) THEN '2MODIF' WHEN FC_BAJA IS NOT NULL THEN '3CANC' else 'No valido' END"
+            ]
+        },
+        "mdm_hsuid_column": "ID_NIHSUCM",
+        "persona_usuaria_column": "ID_PERSONA_USUARIA",
+        "orden_carga": 80,
+        "dynamoDB_table": "hsta_ruu_ruus_des"
+    }
+}

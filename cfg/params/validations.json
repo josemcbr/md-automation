@@ -1,0 +1,293 @@
+{
+    "FC_ALTA": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_ALTA IS NOT NULL THEN date_format(FC_ALTA,'yyyy-MM-dd') ELSE FC_ALTA END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN FC_ALTA IS NULL THEN 'Valido' WHEN CAST(FC_ALTA AS DATE)<=CURRENT_DATE THEN 'Valido' ELSE 'No valido, fecha FC_ALTA futura' END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN FC_ALTA IS NULL THEN 'Valido' WHEN FC_BAJA IS NULL THEN 'Valido' WHEN CAST(FC_ALTA AS DATE) <= CAST(FC_BAJA AS DATE) THEN 'Valido' ELSE 'No valido, fecha alta mayor que fecha baja' END"
+        }
+    ],
+    "FC_BAJA": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_BAJA IS NOT NULL THEN date_format(FC_BAJA,'yyyy-MM-dd') ELSE FC_BAJA END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN FC_BAJA IS NULL THEN 'Valido' WHEN CAST(FC_BAJA AS DATE)<=CURRENT_DATE THEN 'Valido' ELSE 'No valido, fecha FC_BAJA futura' END"
+        }
+    ],
+    "FC_ULTIMA_ACT": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_ULTIMA_ACT IS NOT NULL THEN date_format(FC_ULTIMA_ACT,'yyyy-MM-dd') ELSE FC_ULTIMA_ACT END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_apuntes",
+                "hsta_detalles_apuntes",
+                "hsta_detalles_episodios",
+                "hsta_episodios",
+                "hsta_correos_electronicos",
+                "hsta_direcciones",
+                "hsta_identificaciones",
+                "hsta_nacionalidades",
+                "hsta_personas_usuarias",
+                "hsta_representaciones",
+                "hsta_telefonos",
+                "hsta_unidades_familiares"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN FC_ULTIMA_ACT IS NULL THEN 'Valido' WHEN CAST(FC_ULTIMA_ACT AS DATE) <= CURRENT_DATE THEN 'Valido' ELSE 'No valido, fecha FC_ULTIMA_ACT futura' END"
+        }
+    ],
+    "FC_PRIMER_APUNTE": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_episodios"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_PRIMER_APUNTE IS NOT NULL THEN date_format(FC_PRIMER_APUNTE, 'yyyy-MM-dd') ELSE FC_PRIMER_APUNTE END"
+        }
+    ],
+    "FC_ULTIMO_APUNTE": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_episodios"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_ULTIMO_APUNTE IS NOT NULL THEN date_format(FC_ULTIMO_APUNTE, 'yyyy-MM-dd') ELSE FC_ULTIMO_APUNTE END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_episodios"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN CAST(FC_PRIMER_APUNTE AS DATE) <= CAST(FC_ULTIMO_APUNTE AS DATE) THEN 'Valido' ELSE 'No valido, FC_PRIMER_APUNTE mayor que FC_ULTIMO_APUNTE' END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_episodios"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN CAST(FC_PRIMER_APUNTE AS DATE) <= CAST(FC_ULTIMO_APUNTE AS DATE) THEN 'Valido' ELSE 'No valido, FC_PRIMER_APUNTE mayor que FC_ULTIMO_APUNTE' END"
+        }
+    ],
+    "DS_DIRECCION": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_correos_electronicos"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN DS_DIRECCION RLIKE  '[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}' THEN 'Valido' ELSE 'No valido, formato incorrecto' END"
+        }
+    ],
+    "NM_KM": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN NM_KM IS NULL THEN 'Valido' WHEN NM_KM >= 0 THEN 'Valido' ELSE 'No Valido, valor de NM_KM no permitido' END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN NM_KM IS NOT NULL THEN FORMAT_NUMBER( NM_KM, 2) ELSE NULL END"
+        }
+    ],
+    "DS_NUMERO": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN DS_NUMERO IS NULL THEN 'Valido' WHEN DS_NUMERO REGEXP '^([a-zA-Z0-9 ,]*)?$' THEN 'Valido' ELSE 'No Valido, el Campo DS_NUMERO no solo contiene caracteres alfabeticos, numericos o espacios' END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN DS_NUMERO IS NOT NULL THEN REPLACE(TRIM(LEADING '0' FROM DS_NUMERO), ' ', '') ELSE 'NC' END"
+        }
+    ],
+    "DS_PUERTA": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN DS_PUERTA IS NULL THEN 'Valido' WHEN DS_PUERTA REGEXP '^([a-zA-Z0-9 ,]*)?$' THEN 'Valido' ELSE 'No Valido, el Campo DS_PUERTA no solo contiene caracteres alfabeticos, numericos o espacios' END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN DS_PUERTA IS NOT NULL THEN UPPER(TRIM(REPLACE(DS_PUERTA, ' ', ''))) ELSE 'NC' END"
+        }
+    ],
+    "DS_BLOQUE ": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN DS_BLOQUE IS NOT NULL THEN UPPER(TRIM(REPLACE(DS_BLOQUE , ' ', ''))) ELSE 'NC' END"
+        }
+    ],
+    "DS_ESCALERA": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_direcciones"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN DS_ESCALERA IS NOT NULL THEN UPPER(TRIM(REPLACE(DS_ESCALERA, ' ', ''))) ELSE 'NC' END"
+        }
+    ],
+    "CD_NACIONALIDAD": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_nacionalidades"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "UPPER(CD_NACIONALIDAD)"
+        }
+    ],
+    "FC_NACIMIENTO": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_personas_usuarias"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_NACIMIENTO IS NOT NULL THEN date_format(FC_NACIMIENTO, 'yyyy-MM-dd') ELSE FC_NACIMIENTO END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_personas_usuarias"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN FC_NACIMIENTO IS NULL THEN 'Valido' WHEN CAST(FC_NACIMIENTO AS DATE) <= CURRENT_DATE THEN 'Valido' ELSE 'No valido, fecha FC_NACIMIENTO futura' END"
+        }
+    ],
+    "FC_FALLECIMIENTO": [
+        {
+            "TABLAS_APLICA": [
+                "hsta_personas_usuarias"
+            ],
+            "MODIF_COLUMN": true,
+            "EXPR": "CASE WHEN FC_FALLECIMIENTO IS NOT NULL THEN date_format(FC_FALLECIMIENTO, 'yyyy-MM-dd') ELSE FC_FALLECIMIENTO END"
+        },
+        {
+            "TABLAS_APLICA": [
+                "hsta_personas_usuarias"
+            ],
+            "MODIF_COLUMN": false,
+            "EXPR": "CASE WHEN FC_FALLECIMIENTO IS NULL THEN 'Valido' WHEN CAST(FC_FALLECIMIENTO AS DATE) <= CURRENT_DATE THEN 'Valido' ELSE 'No valido, fecha FC_FALLECIMIENTO futura' END"
+        }
+    ],
+    "VALIDACION_DNI": [
+        {
+            "TIPO_DOCUMENTO": "CD_TIPO_IDENTIFICACION"
+        },
+        {
+            "DOCUMENTO_DE_IDENTIDAD": "DS_NUMERO_IDENTIFICACION"
+        },
+        {
+            "DNI_NULL": "False"
+        }
+    ]
+}

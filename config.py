@@ -1,4 +1,4 @@
 import configparser
 
-config = configparser.ConfigParser()
+config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 config.read('cfg/configs/config.cfg')

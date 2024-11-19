@@ -7,7 +7,7 @@ _OUTPUT_FOLDER = config['folders']['dataquality_output_folder']
 
 def generate_dataquality(df: pd.DataFrame, config_df: pd.DataFrame, legacy: str, schema: str):
     """
-    Generate data quality checks based on the provided dataframes and legacy system information.
+    Generate data quality files based on the provided dataframes and legacy system information.
 
     Parameters:
         df (pd.DataFrame): The main DataFrame containing data for data quality checks.
@@ -17,8 +17,6 @@ def generate_dataquality(df: pd.DataFrame, config_df: pd.DataFrame, legacy: str,
     The function processes the configuration and main DataFrames to produce data quality
     checks as CSV files, applying transformations and filtering based on defined rules.
     """
-    logger.info('Generating data quality checks.')
-    
     # Create legacy output folder
     create_folder(f'{_OUTPUT_FOLDER}/{legacy}')
     
@@ -34,8 +32,6 @@ def generate_dataquality(df: pd.DataFrame, config_df: pd.DataFrame, legacy: str,
 
     legacy_tables = config_df['LEGACY_VIEW'].unique().tolist()
     for legacy_table in legacy_tables:
-        logger.debug(f'Checking {legacy_table}')
-
         # Filter dataframe to process table by table
         join_df_filtered = join_df[join_df['LEGACY_VIEW'] == legacy_table].reset_index(drop=True)
         target_table = join_df_filtered['TARGET_TABLE'].unique()[0]
@@ -59,6 +55,7 @@ def _generate_dataquality_rules(df: pd.DataFrame, table: str):
         Returns:
             str: A string quality rules.
     """
+    logger.debug(f'Generating dataquality file for {table}')
     column_exists_list =  df.loc[df['EXISTS'] == True, 'FIELD_NAME'].tolist()
     is_complete_list = []
     if config.getboolean('dataquality', 'is_complete', fallback=False):
@@ -106,7 +103,7 @@ def _generate_dataquality_files(rules: str, table: str, legacy: str):
             table (str): The name of the database table associated with the rules.
             legacy (str): A legacy identifier used to structure the output folder path.
     """
-    path = f'{_OUTPUT_FOLDER}/{legacy}/ruleset_01_stg_{table}'
+    path = f'{_OUTPUT_FOLDER}/{legacy}/{config.get('dataquality','dq_ruleset_name_prefix')}_{table.lower()}'
     create_folder(path)
 
     for env in config.get('dataquality', 'environments').split(','):

@@ -6,7 +6,7 @@ venv
 # Test
 linajes/*
 test*
-cfg/auxiliary.py
+cfg/auxiliary*
 
 # Outputs
 outputs

@@ -6,8 +6,6 @@ import numpy as np
 import shutil
 from logger import logger
 from config import config
-from tabulate import tabulate
-from contextlib import redirect_stdout
 
 _LINEAGE_FOLDER = config['folders']['lineaje_folder']
 _LINEAGE_FIELDS = config['folders']['parameter_file_folder']
@@ -21,9 +19,28 @@ def validate_parameters():
     '''
     logger.info('Validating input parameters')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--legado', type=str, required=True, choices=['APET','APMV','AYMV','BDUC','GTFN','HSSR','PISO','PNC','RGM','RMIN','SIDM','SIMP','SOIC'])
+    if need_legacy():
+        parser.add_argument('--legado', type=str, required=True, help='Legacy to process')
+    else:
+        parser.add_argument('--legado', type=str, default='dummy')
     args = parser.parse_args()
+
     return args
+
+
+def need_legacy():
+    '''
+        Auxiliar function to check if legacy is needed
+        Returns:
+            bool: True if legacy is needed, False otherwise
+    '''
+    dmstask = config.getboolean('dmstask', 'active', fallback=False)
+    government = config.getboolean('government', 'active', fallback=False)
+    dataquality = config.getboolean('dataquality', 'active', fallback=False)
+
+    if dmstask or government or dataquality:
+        return True
+    return False
 
 
 # Prepare folder strcuture functions
@@ -39,17 +56,23 @@ def create_folder_structure(legacy: str):
     create_folder(config.get('folders', 'output_folder'))
 
     # Function folders
-    create_folder(config.get('folders', 'dmstask_output_folder'))
-    create_folder(config.get('folders', 'government_output_folder'))
-    create_folder(config.get('folders', 'dataquality_output_folder'))
-
-    # Legacy folders
-    delete_folder(f"{config.get('folders', 'dmstask_output_folder')}/{legacy}")
-    create_folder(f"{config.get('folders', 'dmstask_output_folder')}/{legacy}")
-    delete_folder(f"{config.get('folders', 'government_output_folder')}/{legacy}")
-    create_folder(f"{config.get('folders', 'government_output_folder')}/{legacy}")
-    delete_folder(f"{config.get('folders', 'dataquality_output_folder')}/{legacy}")
-    create_folder(f"{config.get('folders', 'dataquality_output_folder')}/{legacy}")
+    if config.getboolean('dmstask', 'active', fallback=False):
+        logger.debug(f"Creating dmstask folder structure for {legacy}")
+        create_folder(config.get('folders', 'dmstask_output_folder'))
+        delete_folder(f"{config.get('folders', 'dmstask_output_folder')}/{legacy}")
+        create_folder(f"{config.get('folders', 'dmstask_output_folder')}/{legacy}")
+    if config.getboolean('government', 'active', fallback=False):
+        logger.debug(f"Creating government tables folder structure for {legacy}")
+        create_folder(config.get('folders', 'government_output_folder'))
+        delete_folder(f"{config.get('folders', 'government_output_folder')}/{legacy}")
+        create_folder(f"{config.get('folders', 'government_output_folder')}/{legacy}")
+    if config.getboolean('dataquality', 'active', fallback=False):
+        logger.debug(f"Creating dataquality folder structure for {legacy}")
+        create_folder(config.get('folders', 'dataquality_output_folder'))
+        delete_folder(f"{config.get('folders', 'dataquality_output_folder')}/{legacy}")
+        create_folder(f"{config.get('folders', 'dataquality_output_folder')}/{legacy}")
+    if config.getboolean('parameters', 'active', fallback=False):
+        create_folder(config.get('folders', 'parameter_output_folder'))
 
     logger.info(f"Folder structure created for {legacy}")
 
@@ -64,7 +87,6 @@ def delete_folder(folder: str):
     '''
     try:
         if os.path.exists(folder):
-            logger.debug(f'Deleting folder {folder}')
             shutil.rmtree(folder)
     except Exception as err:
         logger.error(f"Error deleting folder: {err}")
@@ -81,7 +103,6 @@ def create_folder(folder: str):
     '''
     try:
         if not os.path.exists(folder):
-            logger.debug(f'Creating folder {folder}')
             os.mkdir(folder)
     except Exception as err:
         logger.error(f"Error creating folder: {err}")
@@ -99,6 +120,7 @@ def get_config(schema: str):
     '''
     config_df = pd.read_csv(_LINEAGE_FIELDS, sep=';', dtype=str, header=0)
     config_df['primary_key'] = config_df['primary_key'].fillna('N')
+    config_df['not_null'] = config_df['not_null'].fillna('N')
     config_df['field_length'] = config_df['field_length'].fillna(0)
     config_df.ffill(inplace=True)
     config_df = config_df[config_df['schema'] == schema]
@@ -127,6 +149,7 @@ def parse_lineage_excel(legacy: str, file_path: str, schema: str):
     # Workaround para DET_EPISODIOS y DET_APUNTES
     lineage_df['LEGACY_NOMBRE_VISTA'] = np.where(lineage_df['LEGACY_NOMBRE_VISTA'] == f'{legacy}_VM_HSTA_DET_EPISODIO', f'{legacy}_VM_HSTA_DET_EPISODIOS', lineage_df['LEGACY_NOMBRE_VISTA'])
     lineage_df['LEGACY_NOMBRE_VISTA'] = np.where(lineage_df['LEGACY_NOMBRE_VISTA'] == f'{legacy}_VM_HSTA_DET_APUNTE', f'{legacy}_VM_HSTA_DET_APUNTES', lineage_df['LEGACY_NOMBRE_VISTA'])
+    lineage_df['LEGACY_NOMBRE_VISTA'] = np.where(lineage_df['LEGACY_NOMBRE_VISTA'] == f'{legacy}_VM_HSTA_UNIDAD_FAMILIAR', f'{legacy}_VM_HSTA_UNIDADES_FAMILIARES', lineage_df['LEGACY_NOMBRE_VISTA'])
 
     return lineage_df
 
@@ -151,14 +174,14 @@ def get_last_lineage_file(legacy: str):
             lineage_legacy_list.append(item)
 
     if len(lineage_legacy_list) == 0:
-        logger.error(f'No lineage found for {legacy}')
-        raise FileNotFoundError(f'No lineage found for {legacy}')
+        logger.info(f'No lineage found for {legacy}')
+        return 
 
     last_lineage = _get_last_version(lineage_legacy_list)
-
-    logger.info(f'Got the last lineage: {last_lineage}')
-
-    return f'{_LINEAGE_FOLDER}{last_lineage}'
+    if last_lineage:
+        logger.info(f'Got the last lineage: {last_lineage}')
+        return f'{_LINEAGE_FOLDER}{last_lineage}'
+    return
 
 
 def _get_lineages_legacy(legacy: str):
@@ -204,7 +227,7 @@ def _get_last_version(lineage_file_list: list):
 
     if return_item == '':
         logger.error(f'No version found for {lineage_file_list}')
-        raise FileNotFoundError(f'No version found for {lineage_file_list}')
+        return
 
     return return_item
 
